@@ -6,6 +6,7 @@
 <PageTitle>Home</PageTitle>
 
 <EditForm EditContext="_editContext" OnValidSubmit="OnValid">
+    <DataAnnotationsValidator />
     <ValidationSummary />
 
     <button @onclick="AddEntity" @onclick:preventDefault>Add</button>
