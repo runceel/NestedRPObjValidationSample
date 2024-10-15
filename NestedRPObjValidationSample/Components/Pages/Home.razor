@@ -7,6 +7,7 @@
 <EditForm EditContext="_editContext" OnValidSubmit="OnValid">
     <ValidationSummary />
 
+    <button @onclick="AddEntity" @onclick:preventDefault>Add</button>
     @foreach (var someValue in _model.SomeValues)
     {
         <div>
@@ -52,6 +53,11 @@
         _validationMessageStore = new ValidationMessageStore(_editContext);
 
         _editContext.OnValidationRequested += ValidationRequested;
+    }
+
+    private void AddEntity(MouseEventArgs args)
+    {
+        _model.SomeValues.Add(new SomeEntity());
     }
 
     private void ValidationRequested(object? sender, ValidationRequestedEventArgs args)
