@@ -10,6 +10,8 @@ class SomeModel
 
 class SomeEntity
 {
+    private IReactiveProperty<string>[] _allProperties;
+
     [Required(ErrorMessage = "A is required.")]
     public ValidatableReactiveProperty<string> A { get; set; }
     [Required(ErrorMessage = "B is required.")]
@@ -19,5 +21,15 @@ class SomeEntity
     {
         A = ValidatableReactiveProperty.CreateFromDataAnnotations("", () => A);
         B = ValidatableReactiveProperty.CreateFromDataAnnotations("", () => B);
+
+        _allProperties = [A, B];
+    }
+
+    public void Validate()
+    {
+        foreach (var property in _allProperties)
+        {
+            property.ForceNotify();
+        }
     }
 }
