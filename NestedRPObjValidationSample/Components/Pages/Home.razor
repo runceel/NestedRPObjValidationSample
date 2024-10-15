@@ -1,0 +1,85 @@
+﻿@page "/"
+@using NestedRPObjValidationSample.Models
+@using System.Diagnostics
+
+<PageTitle>Home</PageTitle>
+
+<EditForm EditContext="_editContext" OnValidSubmit="OnValid">
+    <ValidationSummary />
+
+    @foreach (var someValue in _model.SomeValues)
+    {
+        <div>
+            <label>
+                A
+                <InputText @bind-Value="someValue.A.Value" />
+                <ValidationMessage For="@(() => someValue.A.Value)" />
+            </label>
+            <label>
+                B
+                <InputText @bind-Value="someValue.B.Value" />
+                <ValidationMessage For="@(() => someValue.B.Value)" />
+            </label>
+        </div>
+    }
+
+    <input type="submit" />
+</EditForm>
+
+@if (!string.IsNullOrWhiteSpace(_message))
+{
+    <p>@_message</p>
+}
+
+@code {
+    private SomeModel _model = new SomeModel
+        {
+            SomeValues =
+            {
+                new SomeEntity(),
+                new SomeEntity(),
+                new SomeEntity(),
+            }
+        };
+
+    private EditContext? _editContext;
+    private ValidationMessageStore? _validationMessageStore;
+    private string _message = "";
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_model);
+        _validationMessageStore = new ValidationMessageStore(_editContext);
+
+        _editContext.OnValidationRequested += ValidationRequested;
+    }
+
+    private void ValidationRequested(object? sender, ValidationRequestedEventArgs args)
+    {
+        Verify.ThrowIfNull(_editContext);
+        Verify.ThrowIfNull(_validationMessageStore);
+
+        _validationMessageStore.Clear();
+
+        foreach (var someValue in _model.SomeValues)
+        {
+            someValue.A.ForceNotify();
+            someValue.B.ForceNotify();
+
+            if (someValue.A.HasErrors)
+            {
+                _validationMessageStore.Add(new FieldIdentifier(someValue.A, "Value"), someValue.A.ErrorMessage);
+            }
+
+            if (someValue.B.HasErrors)
+            {
+                _validationMessageStore.Add(new FieldIdentifier(someValue.B, "Value"), someValue.B.ErrorMessage);
+            }
+        }
+    }
+
+    private void OnValid(EditContext editContext)
+    {
+        _message = "Valid!";
+    }
+}
