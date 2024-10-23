@@ -5,9 +5,12 @@
 
 <PageTitle>Home</PageTitle>
 
-<EditForm EditContext="_editContext" OnValidSubmit="OnValid">
+<EditForm EditContext="_editContext" OnValidSubmit="OnValid" OnInvalidSubmit="OnInvalid">
+    <h2>Error</h2>
+
     <ValidationSummary />
 
+    <h2>Form</h2>
     <button @onclick="AddEntity" @onclick:preventDefault>Add</button>
     @foreach (var someValue in _model.SomeValues)
     {
@@ -75,18 +78,27 @@
             AddErrorIfHasError(someValue.A);
             AddErrorIfHasError(someValue.B);
         }
+
+        _editContext.NotifyValidationStateChanged();
+        StateHasChanged();
     }
 
     private void AddErrorIfHasError<T>(ValidatableReactiveProperty<T> rp)
     {
+        Verify.ThrowIfNull(_validationMessageStore);
         if (rp.HasErrors)
         {
-            _validationMessageStore?.Add(new FieldIdentifier(rp, nameof(rp.Value)), rp.ErrorMessage);
+            _validationMessageStore.Add(new FieldIdentifier(rp, nameof(rp.Value)), rp.ErrorMessage);
         }
     }
 
     private void OnValid(EditContext editContext)
     {
         _message = "Valid!";
+    }
+
+    private void OnInvalid(EditContext editContext)
+    {
+        _message = "Invalid!";
     }
 }
